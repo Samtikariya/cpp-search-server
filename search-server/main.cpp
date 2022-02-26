@@ -70,21 +70,45 @@ void TestExcludeStopWordsFromAddedDocumentContent() {     //Поддержка �
     }
 }
 */
+
+
+
 void TestForAddDocument() {
-    SearchServer server;
-    const int doc_id = 11;
-    const string content = "I new document"s;
-    const vector <int> rating = { 1, 2, 3, 4 };
-    server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, rating);
-    //    assert(server.GetDocumentCount() == 1);
-    ASSERT_EQUAL(server.GetDocumentCount(), 1);
-    vector <Document> testvec = server.FindTopDocuments("new"s);
-    //    assert(testvec.size() == 1);
-    ASSERT_EQUAL(testvec.size(), 1);
+    {
+        SearchServer server;
+        const int doc_id = 11;
+        const string content = "I new document"s;
+        const vector <int> rating = { 1, 2, 3, 4 };
+        server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, rating);
+        //    assert(server.GetDocumentCount() == 1);
+        ASSERT_EQUAL(server.GetDocumentCount(), 1);
+        vector <Document> testvec = server.FindTopDocuments("new"s);
+        //    assert(testvec.size() == 1);
+        ASSERT_EQUAL(testvec.size(), 1);
+        ASSERT_HINT(!testvec.empty(), "Stop words must be included in documents"s);
+    }
+    {
+        SearchServer server;
+        //        const int doc_id = 12;
+        const string content = "I new document 2"s;
+        //        const string content2 = "I  document 2"s;
+        const vector <int> rating = { -1, 2, 3, 4 };
+        //        const vector <int> rating2 = { 1, 2, 3, 4 };
+        server.AddDocument(11, content, DocumentStatus::ACTUAL, rating);
+        //        server.AddDocument(5, content2, DocumentStatus::ACTUAL, rating2);
+                //    assert(server.GetDocumentCount() == 1);
+        //        ASSERT_EQUAL(server.GetDocumentCount(), 2);
+        ASSERT_EQUAL(server.GetDocumentCount(), 1);
+        vector <Document> testvec = server.FindTopDocuments("new"s);
+        //    assert(testvec.size() == 1);
+//        ASSERT_EQUAL(testvec.size(), 2);
+        ASSERT_EQUAL(testvec.size(), 1);
+        ASSERT_HINT(!testvec.empty(), "Stop words must be included in documents"s);
+    }
 
 }
 
-void TestForMinusWordsExludeFromSearch() {
+void TestForMinusWordsExcludeFromSearch() {
     SearchServer server;
     const string content = "Dogs and cats best friends"s;
     server.AddDocument(0, content, DocumentStatus::ACTUAL, { 1, 2, 3 });
@@ -100,8 +124,9 @@ void TestForMinusWordsExludeFromSearch() {
 void TestForMatchingDocuments() {
     SearchServer server;
     const int doc_id = 12;
-    const vector <int> rating = { 1, 2, 3, 4 };
+    const vector <int> rating = { 1, 2, 3, 4 }, rating2 = { 1, -2, 3, -4 }, rating3 = { -1, -2, -3, -4 };
     DocumentStatus status = DocumentStatus::ACTUAL;
+    //положительные оценки
     {
         SearchServer server;
         server.AddDocument(doc_id, "Hello mr big cat"s, status, rating);
@@ -115,6 +140,50 @@ void TestForMatchingDocuments() {
     {
         SearchServer server;
         server.AddDocument(doc_id, "Hello mr big cat"s, status, rating);
+        //        assert(server.GetDocumentCount() == 1);
+        ASSERT_EQUAL(server.GetDocumentCount(), 1);
+        vector<string> testvec;
+        tie(testvec, status) = server.MatchDocument("-cat"s, doc_id);
+        //        assert(testvec.empty());
+        ASSERT_HINT(testvec.empty(), "TestForMatchingDocuments"s);
+
+    }
+    //смешанные оценки
+    {
+        SearchServer server;
+        server.AddDocument(doc_id, "Hello mr big cat"s, status, rating2);
+        //        assert(server.GetDocumentCount() == 1);
+        ASSERT_EQUAL(server.GetDocumentCount(), 1);
+        vector<string> testvec;
+        tie(testvec, status) = server.MatchDocument("cat"s, doc_id);
+        //        assert(!testvec.empty());
+        ASSERT_HINT(!testvec.empty(), "TestForMatchingDocuments"s);
+    }
+    {
+        SearchServer server;
+        server.AddDocument(doc_id, "Hello mr big cat"s, status, rating2);
+        //        assert(server.GetDocumentCount() == 1);
+        ASSERT_EQUAL(server.GetDocumentCount(), 1);
+        vector<string> testvec;
+        tie(testvec, status) = server.MatchDocument("-cat"s, doc_id);
+        //        assert(testvec.empty());
+        ASSERT_HINT(testvec.empty(), "TestForMatchingDocuments"s);
+
+    }
+    //отрицательные оценки
+    {
+        SearchServer server;
+        server.AddDocument(doc_id, "Hello mr big cat"s, status, rating3);
+        //        assert(server.GetDocumentCount() == 1);
+        ASSERT_EQUAL(server.GetDocumentCount(), 1);
+        vector<string> testvec;
+        tie(testvec, status) = server.MatchDocument("cat"s, doc_id);
+        //        assert(!testvec.empty());
+        ASSERT_HINT(!testvec.empty(), "TestForMatchingDocuments"s);
+    }
+    {
+        SearchServer server;
+        server.AddDocument(doc_id, "Hello mr big cat"s, status, rating3);
         //        assert(server.GetDocumentCount() == 1);
         ASSERT_EQUAL(server.GetDocumentCount(), 1);
         vector<string> testvec;
@@ -227,21 +296,29 @@ void TestForPredicate() {
     }
 }
 
+
+
 void TestForDocumentsStatus() {
     SearchServer server;
     const string content = "Dogs and cats best friends"s;
-    const DocumentStatus status = DocumentStatus::ACTUAL;
-    server.AddDocument(0, content, status, { 1, 2, 3 });
-    auto testvec = server.FindTopDocuments("cats"s, status);
+    //    const DocumentStatus status = DocumentStatus::ACTUAL;
+    server.AddDocument(4, "I like white cats"s, DocumentStatus::ACTUAL, { 8, -3 });
+    server.AddDocument(1, "I like cats and dogs"s, DocumentStatus::ACTUAL, { 7, 2, 7 });
+    server.AddDocument(2, "cat and dog"s, DocumentStatus::ACTUAL, { 5, -12, 2, 1 });
+    server.AddDocument(3, "this dog is big and fluff"s, DocumentStatus::BANNED, { 9 });
+    //    auto testvec = server.FindTopDocuments("cats"s, status);
+    auto t = server.FindTopDocuments("this"s, DocumentStatus::BANNED);
     //    assert(content.size() == 26);
-    ASSERT_EQUAL(content.size(), 26);
+//    ASSERT_EQUAL(content.size(), 26);
+    ASSERT_EQUAL(t.size(), 1);
 }
+
 
 // Функция TestSearchServer является точкой входа для запуска тестов
 void TestSearchServer() {
     TestExcludeStopWordsFromAddedDocumentContent();
     TestForAddDocument();
-    TestForMinusWordsExludeFromSearch();
+    TestForMinusWordsExcludeFromSearch();
     TestForMatchingDocuments();
     TestForSortTfIdf();
     TestForRatingDocument();
