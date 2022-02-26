@@ -9,7 +9,7 @@
 #include <vector>
 
 using namespace std;
-
+const double project_error = 1e-6;
 /* Подставьте вашу реализацию класса SearchServer сюда */
 
 /*
@@ -88,21 +88,18 @@ void TestForAddDocument() {
         ASSERT_HINT(!testvec.empty(), "Stop words must be included in documents"s);
     }
     {
-        //закоментил строки с вторым добавленным документом, потому что в Урок 8 Фрэймворк и поисковая система задание не принимается 
         SearchServer server;
         //        const int doc_id = 12;
         const string content = "I new document 2"s;
-        //        const string content2 = "I  document 2"s;
-        const vector <int> rating = { -1, 2, 3, 4 };
-        //        const vector <int> rating2 = { 1, 2, 3, 4 };
+        const string content2 = "I  document 2"s;
+        const vector <int> rating = { 1, 2, 3, 4 };
+        const vector <int> rating2 = { 1, -2, 3, -4 };
         server.AddDocument(11, content, DocumentStatus::ACTUAL, rating);
-        //        server.AddDocument(5, content2, DocumentStatus::ACTUAL, rating2);
-                //    assert(server.GetDocumentCount() == 1);
-        //        ASSERT_EQUAL(server.GetDocumentCount(), 2);
-        ASSERT_EQUAL(server.GetDocumentCount(), 1);
+        server.AddDocument(5, content2, DocumentStatus::ACTUAL, rating2);
+        //    assert(server.GetDocumentCount() == 1);
+        ASSERT_EQUAL(server.GetDocumentCount(), 2);
         vector <Document> testvec = server.FindTopDocuments("new"s);
         //    assert(testvec.size() == 1);
-//        ASSERT_EQUAL(testvec.size(), 2);
         ASSERT_EQUAL(testvec.size(), 1);
         ASSERT_HINT(!testvec.empty(), "Stop words must be included in documents"s);
     }
@@ -194,6 +191,90 @@ void TestForMatchingDocuments() {
 
     }
 }
+/*
+void TestForSortTfIdf() {
+    SearchServer server;
+    const vector<int> doc_id = { 5, 6, 7, 8 };
+    vector <string> content = {
+       "cat and dog"s,
+       "Where are you from"s,
+       "I like white cats"s,
+       "Dogs and cats best friends"s };
+
+    vector <vector<string>> documents = {
+        {"cat"s, "and"s, "dog"s},
+        {"Where"s, "are"s, "you"s, "from"s},
+        {"I"s, "like"s, "white"s,"cats"s},
+        {"Dogs"s, "and"s, "cats"s, "best"s, "friends"s} };
+    {
+
+        const vector<int> ratings = { 1, 2, 3 };
+        for (int i = 0; i < content.size(); i++)
+        {
+            server.AddDocument(doc_id[i], content[i], DocumentStatus::ACTUAL, ratings);
+        }
+        //    assert(server.GetDocumentCount() == 4);
+        ASSERT_EQUAL(server.GetDocumentCount(), 4);
+        vector<double> tf;
+        int document_freq = 0;
+        vector<double> ved;
+        string term = "cats"s;
+
+        for (const auto& document : documents) {
+            int word_count = count(begin(document), end(document), term);
+            if (word_count > 0)
+            {
+                tf.push_back(static_cast<double>(word_count) / static_cast<double>(document.size()));
+                document_freq += count(begin(document), end(document), term);
+            }
+        }
+        for (int i = 0; i < tf.size(); i++) {
+            ved.push_back(tf[i] * log(static_cast<double>(documents.size()) / static_cast<double>(document_freq)));
+        }
+        vector <Document> nv = server.FindTopDocuments(term);
+        sort(begin(ved), end(ved), [](double& d1, double& d2) {return d1 > d2; });
+        for (int i = 0; i < ved.size(); i++)
+        {
+            //        assert(ved[i] == nv[i].relevance);
+            ASSERT_EQUAL(ved[i], nv[i].relevance);
+        }
+    }
+
+    {
+
+        const vector<int> ratings = { 1, 2, 3 };
+        for (int i = 0; i < content.size(); i++)
+        {
+            server.AddDocument(doc_id[i], content[i], DocumentStatus::ACTUAL, ratings);
+        }
+        //    assert(server.GetDocumentCount() == 4);
+        ASSERT_EQUAL(server.GetDocumentCount(), 4);
+        vector<double> tf;
+        int document_freq = 0;
+        vector<double> ved;
+        string term = "cats"s;
+
+        for (const auto& document : documents) {
+            int word_count = count(begin(document), end(document), term);
+            if (word_count > 0)
+            {
+                tf.push_back(static_cast<double>(word_count) / static_cast<double>(document.size()));
+                document_freq += count(begin(document), end(document), term);
+            }
+        }
+        for (int i = 0; i < tf.size(); i++) {
+            ved.push_back(tf[i] * log(static_cast<double>(documents.size()) / static_cast<double>(document_freq)));
+        }
+        vector <Document> nv = server.FindTopDocuments(term);
+        sort(begin(ved), end(ved), [](double& d1, double& d2) {return d1 > d2; });
+        for (int i = 0; i < ved.size(); i++)
+        {
+            //        assert(ved[i] == nv[i].relevance);
+            ASSERT_EQUAL(ved[i], nv[i].relevance);
+        }
+    }
+}
+*/
 
 void TestForSortTfIdf() {
     SearchServer server;
@@ -222,6 +303,8 @@ void TestForSortTfIdf() {
     vector<double> ved;
     string term = "cats"s;
 
+
+    vector <Document> nv = server.FindTopDocuments(term);
     for (const auto& document : documents) {
         int word_count = count(begin(document), end(document), term);
         if (word_count > 0)
@@ -233,31 +316,76 @@ void TestForSortTfIdf() {
     for (int i = 0; i < tf.size(); i++) {
         ved.push_back(tf[i] * log(static_cast<double>(documents.size()) / static_cast<double>(document_freq)));
     }
-    vector <Document> nv = server.FindTopDocuments(term);
     sort(begin(ved), end(ved), [](double& d1, double& d2) {return d1 > d2; });
     for (int i = 0; i < ved.size(); i++)
     {
         //        assert(ved[i] == nv[i].relevance);
-        ASSERT_EQUAL(ved[i], nv[i].relevance);
-        //не понял что требуется в замечании. ге могли бы вы пояснить или показать
+//        ASSERT_EQUAL(ved[i], nv[i].relevance);
+        ASSERT(abs(nv[i].relevance - ved[i]) <= project_error);
     }
 }
 
-void TestForRatingDocument() {
+
+void TestForSortRelevance() {
     SearchServer server;
-    const DocumentStatus status = DocumentStatus::ACTUAL;
-    const vector<int> rating = { 1, 2, 3, 4 };
-    int sum_ratings = 0;
-    for (const int irating : rating) {
-        sum_ratings += irating;
+    const vector<int> doc_id = { 5, 6, 7, 8 };
+    vector <string> content = {
+       "cat and dog"s,
+       "Where are you from"s,
+       "I like white cats"s,
+       "Dogs and cats best friends"s };
+
+    const vector<int> ratings = { 1, 2, 3 };
+    for (int i = 0; i < content.size(); i++)
+    {
+        server.AddDocument(doc_id[i], content[i], DocumentStatus::ACTUAL, ratings);
     }
-    const int avg_rating = sum_ratings / rating.size();
-    server.AddDocument(0, "Dogs and cats best friends"s, status, rating);
-    //    assert(server.GetDocumentCount() == 1);
-    ASSERT_EQUAL(server.GetDocumentCount(), 1);
-    vector<Document> testvec = server.FindTopDocuments("cats"s);
-    //    assert(avg_rating == testvec[0].rating);
-    ASSERT_EQUAL(avg_rating, testvec[0].rating);
+    ASSERT_EQUAL(server.GetDocumentCount(), 4);
+    vector<double> tf;
+    vector<double> ved;
+    string term = "cats"s;
+
+
+    vector <Document> nv = server.FindTopDocuments(term);
+    for (int i = 1; i < nv.size(); i++) {
+        ASSERT(nv[i - 1].relevance >= nv[i].relevance);
+    }
+
+}
+
+void TestForRatingDocument() {
+    {
+        SearchServer server;
+        const DocumentStatus status = DocumentStatus::ACTUAL;
+        const vector<int> rating = { 1, 2, 3, 4 };
+        int sum_ratings = 0;
+        for (const int irating : rating) {
+            sum_ratings += irating;
+        }
+        const int avg_rating = sum_ratings / rating.size();
+        server.AddDocument(0, "Dogs and cats best friends"s, status, rating);
+        //    assert(server.GetDocumentCount() == 1);
+        ASSERT_EQUAL(server.GetDocumentCount(), 1);
+        vector<Document> testvec = server.FindTopDocuments("cats"s);
+        //    assert(avg_rating == testvec[0].rating);
+        ASSERT_EQUAL(avg_rating, testvec[0].rating);
+    }
+    {
+        SearchServer server;
+        const DocumentStatus status = DocumentStatus::ACTUAL;
+        const vector<int> rating = { -1, -2, -3, -4 };
+        int sum_ratings = 0;
+        for (const int irating : rating) {
+            sum_ratings += irating;
+        }
+        const int avg_rating = 1.0 * sum_ratings / rating.size();
+        server.AddDocument(0, "Dogs and cats best friends"s, status, rating);
+        //    assert(server.GetDocumentCount() == 1);
+        ASSERT_EQUAL(server.GetDocumentCount(), 1);
+        vector<Document> testvec = server.FindTopDocuments("cats"s);
+        //    assert(avg_rating == testvec[0].rating);
+        ASSERT_EQUAL(avg_rating, testvec[0].rating);
+    }
 }
 
 void TestForPredicate() {
@@ -305,14 +433,24 @@ void TestForDocumentsStatus() {
     const string content = "Dogs and cats best friends"s;
     //    const DocumentStatus status = DocumentStatus::ACTUAL;
     server.AddDocument(4, "I like white cats"s, DocumentStatus::ACTUAL, { 8, -3 });
-    server.AddDocument(1, "I like cats and dogs"s, DocumentStatus::ACTUAL, { 7, 2, 7 });
-    server.AddDocument(2, "cat and dog"s, DocumentStatus::ACTUAL, { 5, -12, 2, 1 });
+    server.AddDocument(1, "I like cats and dogs"s, DocumentStatus::IRRELEVANT, { 7, 2, 7 });
+    server.AddDocument(2, "cat and dog"s, DocumentStatus::REMOVED, { 5, -12, 2, 1 });
     server.AddDocument(3, "this dog is big and fluff"s, DocumentStatus::BANNED, { 9 });
+    server.AddDocument(3, "i like this dog of mine"s, DocumentStatus::REMOVED, { 6, 5, 1 });
     //    auto testvec = server.FindTopDocuments("cats"s, status);
     auto t = server.FindTopDocuments("this"s, DocumentStatus::BANNED);
     //    assert(content.size() == 26);
 //    ASSERT_EQUAL(content.size(), 26);
     ASSERT_EQUAL(t.size(), 1);
+
+    auto t2 = server.FindTopDocuments("this"s, DocumentStatus::ACTUAL);
+    ASSERT_EQUAL(t2.size(), 0);
+
+    auto t3 = server.FindTopDocuments("this"s, DocumentStatus::IRRELEVANT);
+    ASSERT_EQUAL(t3.size(), 0);
+
+    auto t4 = server.FindTopDocuments("dog"s, DocumentStatus::REMOVED);
+    ASSERT_EQUAL(t4.size(), 1);
 }
 
 
@@ -323,6 +461,7 @@ void TestSearchServer() {
     TestForMinusWordsExcludeFromSearch();
     TestForMatchingDocuments();
     TestForSortTfIdf();
+    TestForSortRelevance();
     TestForRatingDocument();
     TestForPredicate();
     TestForDocumentsStatus();
