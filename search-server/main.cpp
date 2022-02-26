@@ -88,6 +88,7 @@ void TestForAddDocument() {
         ASSERT_HINT(!testvec.empty(), "Stop words must be included in documents"s);
     }
     {
+        //закоментил строки с вторым добавленным документом, потому что в Урок 8 Фрэймворк и поисковая система задание не принимается 
         SearchServer server;
         //        const int doc_id = 12;
         const string content = "I new document 2"s;
@@ -238,6 +239,7 @@ void TestForSortTfIdf() {
     {
         //        assert(ved[i] == nv[i].relevance);
         ASSERT_EQUAL(ved[i], nv[i].relevance);
+        //не понял что требуется в замечании. ге могли бы вы пояснить или показать
     }
 }
 
