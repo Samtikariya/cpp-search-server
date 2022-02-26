@@ -355,6 +355,7 @@ void TestForSortRelevance() {
 
 void TestForRatingDocument() {
     {
+        //Положительный рейтинг
         SearchServer server;
         const DocumentStatus status = DocumentStatus::ACTUAL;
         const vector<int> rating = { 1, 2, 3, 4 };
@@ -371,9 +372,27 @@ void TestForRatingDocument() {
         ASSERT_EQUAL(avg_rating, testvec[0].rating);
     }
     {
+        //Отрицательный рейтинг
         SearchServer server;
         const DocumentStatus status = DocumentStatus::ACTUAL;
         const vector<int> rating = { -1, -2, -3, -4 };
+        int sum_ratings = 0;
+        for (const int irating : rating) {
+            sum_ratings += irating;
+        }
+        const int avg_rating = 1.0 * sum_ratings / rating.size();
+        server.AddDocument(0, "Dogs and cats best friends"s, status, rating);
+        //    assert(server.GetDocumentCount() == 1);
+        ASSERT_EQUAL(server.GetDocumentCount(), 1);
+        vector<Document> testvec = server.FindTopDocuments("cats"s);
+        //    assert(avg_rating == testvec[0].rating);
+        ASSERT_EQUAL(avg_rating, testvec[0].rating);
+    }
+    {
+        //смешанный рейтинг
+        SearchServer server;
+        const DocumentStatus status = DocumentStatus::ACTUAL;
+        const vector<int> rating = { -1, 2, -3, 4 };
         int sum_ratings = 0;
         for (const int irating : rating) {
             sum_ratings += irating;
