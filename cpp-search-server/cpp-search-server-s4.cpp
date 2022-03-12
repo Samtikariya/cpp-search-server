@@ -1,9 +1,12 @@
 ﻿//Вставьте сюда своё решение из урока «‎Очередь запросов».‎
+#include <windows.h>
 #include "search_server.h"
 #include "paginator.h"
 #include "request_queue.h"
 
+
 int main() {
+    setlocale(LC_ALL, "Russian");
     SearchServer search_server("and in at"s);
     RequestQueue request_queue(search_server);
 
@@ -23,6 +26,6 @@ int main() {
     request_queue.AddFindRequest("big collar"s);
     // первый запрос удален, 1437 запросов с нулевым результатом
     request_queue.AddFindRequest("sparrow"s);
-    std::cout << "Total empty requests: "s << request_queue.GetNoResultRequests() << '\n';
+    std::cout << "Всего пустых запросов: "s << request_queue.GetNoResultRequests() << '\n';
     return 0;
 }

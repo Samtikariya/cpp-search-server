@@ -70,7 +70,7 @@ template <typename StringContainer>
 SearchServer::SearchServer(const StringContainer& stop_words) : stop_words_(MakeUniqueNonEmptyStrings(stop_words))
 {
     if (!all_of(stop_words_.begin(), stop_words_.end(), IsValidWord)) {
-        throw invalid_argument("Some of stop words are invalid");
+        throw invalid_argument("Некоторые из стоп слов являются недействительными");
     }
 }
 

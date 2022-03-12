@@ -10,7 +10,7 @@ SearchServer::SearchServer(const string& stop_words_text)
 
 void SearchServer::AddDocument(int document_id, const string& document, DocumentStatus status, const vector<int>& ratings) {
     if ((document_id < 0) || (documents_.count(document_id) > 0)) {
-        throw invalid_argument("Invalid document_id"s);
+        throw invalid_argument("недействительный document_id"s);
     }
     const auto words = SplitIntoWordsNoStop(document);
 
@@ -85,7 +85,7 @@ vector<string> SearchServer::SplitIntoWordsNoStop(const string& text) const {
     vector<string> words;
     for (const string& word : SplitIntoWords(text)) {
         if (!IsValidWord(word)) {
-            throw invalid_argument("Word "s + word + " is invalid"s);
+            throw invalid_argument("Word "s + word + " является недействительным"s);
         }
         if (!IsStopWord(word)) {
             words.push_back(word);
@@ -96,7 +96,7 @@ vector<string> SearchServer::SplitIntoWordsNoStop(const string& text) const {
 
 SearchServer::QueryWord SearchServer::ParseQueryWord(const string& text) const {
     if (text.empty()) {
-        throw invalid_argument("Query word is empty"s);
+        throw invalid_argument("Query word пустой"s);
     }
     string word = text;
     bool is_minus = false;
@@ -105,7 +105,7 @@ SearchServer::QueryWord SearchServer::ParseQueryWord(const string& text) const {
         word = word.substr(1);
     }
     if (word.empty() || word[0] == '-' || !IsValidWord(word)) {
-        throw invalid_argument("Query word "s + text + " is invalid");
+        throw invalid_argument("Query word "s + text + " является недействительным");
     }
 
     return { word, is_minus, IsStopWord(word) };
