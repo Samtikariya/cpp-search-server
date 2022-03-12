@@ -8,6 +8,7 @@ std::string ReadLine() {
     return s;
 }
 
+
 int ReadLineWithNumber() {
     int result;
     std::cin >> result;

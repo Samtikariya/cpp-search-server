@@ -11,6 +11,7 @@ using namespace std;
 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 
+
 class SearchServer {
 public:
     template <typename StringContainer>
@@ -37,8 +38,8 @@ private:
     const set<string> stop_words_;
     map<string, map<int, double>> word_to_document_freqs_;
     map<int, DocumentData> documents_;
-    vector<int> document_ids_;
-    double eps = 1e-6;
+    vector<int> document_id_;
+    double pseudo_zero = 1e-6;
 
     bool IsStopWord(const string& word) const;
     static bool IsValidWord(const string& word);
@@ -80,8 +81,8 @@ vector<Document> SearchServer::FindTopDocuments(const string& raw_query, Documen
 
     auto matched_documents = FindAllDocuments(query, document_predicate);
 
-    sort(matched_documents.begin(), matched_documents.end(), [eps = eps](const Document& lhs, const Document& rhs) {
-        if (abs(lhs.relevance - rhs.relevance) < eps) {
+    sort(matched_documents.begin(), matched_documents.end(), [pseudo_zero = pseudo_zero](const Document& lhs, const Document& rhs) {
+        if (abs(lhs.relevance - rhs.relevance) < pseudo_zero) {
             return lhs.rating > rhs.rating;
         }
         else {
