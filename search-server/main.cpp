@@ -75,11 +75,9 @@ public:
     template <typename StringCollection>
     explicit SearchServer(const StringCollection& stop_words)
         : stop_words_(MakeUniqueNonEmptyStrings(stop_words)) {
-        if (IsNotValidStopWords(stop_words)) {
-            for (const auto& word : stop_words_) {
-                if (!IsValidWord(word))
-                    throw invalid_argument("Stop word \""s + word + "' has invalid symbols");
-            }
+        for (const auto& word : stop_words_) {
+            if (!IsValidWord(word))
+                throw invalid_argument("Stop word \""s + word + "' has invalid symbols");
         }
 
     }
@@ -167,20 +165,22 @@ public:
         return result;
     }
 
+
     int GetDocumentId(int index) const {
         if (index <= 0 || index > documents_.size()) {
             throw out_of_range("invalid index"s);
         }
-        int get_id = 0;
-        int count = 0;
+        vector<int> id_vector;
+        id_vector.clear();
         for (auto [id, _] : documents_) {
-            count++;
-            if (count == index) {
-                get_id = id;
-            }
+            id_vector.push_back(id);
         }
-        return get_id;
+        return id_vector.at(index);
     }
+
+
+
+
 
 private:
     struct DocumentData {
@@ -208,15 +208,7 @@ private:
         return nullopt;
     }
 
-    static bool IsValidMinus(const string& word) {
-        bool param = true;
-        for (int i = 0; i < word.length(); i++) {
-            if (word[i] == '-' && ((word[i + 1] == '-') || (i == word.length() - 1))) {
-                param = false;
-            }
-        }
-        return param;
-    }
+
 
     bool IsStopWord(const string& word) const {
         return stop_words_.count(word) > 0;
