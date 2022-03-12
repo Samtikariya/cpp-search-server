@@ -24,6 +24,7 @@
     <ProjectGuid>{c6f4a517-876d-4b0f-9ab6-e688b8c623ef}</ProjectGuid>
     <RootNamespace>cppsearchserver</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>cpp-search-server-s4</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -139,7 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cpp-search-server.cpp">
+    <ClCompile Include="cpp-search-server-s4.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <ClCompile Include="document.cpp">

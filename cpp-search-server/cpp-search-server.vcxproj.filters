@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cpp-search-server.cpp">
+    <ClCompile Include="cpp-search-server-s4.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="document.cpp">
