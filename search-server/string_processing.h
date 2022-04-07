@@ -1,13 +1,20 @@
-﻿//Вставьте сюда своё решение из урока «‎Очередь запросов».‎
+﻿// в качестве заготовки кода используйте последнюю версию своей поисковой системы
 #pragma once
-#include <vector>
-#include <string>
-#include <set>
+
+#include "search_server.h"
+#include "document.h"
+
+void PrintDocument(const Document& document);
+
+void PrintMatchDocumentResult(int document_id,
+    const std::vector<std::string>& words,
+    DocumentStatus status);
 
 std::vector<std::string> SplitIntoWords(const std::string& text);
 
 template <typename StringContainer>
-std::set<std::string> MakeUniqueNonEmptyStrings(const StringContainer& strings) {
+std::set<std::string>
+MakeUniqueNonEmptyStrings(const StringContainer& strings) {
     std::set<std::string> non_empty_strings;
     for (const std::string& str : strings) {
         if (!str.empty()) {

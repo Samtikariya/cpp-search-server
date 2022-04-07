@@ -1,9 +1,32 @@
-﻿//Вставьте сюда своё решение из урока «‎Очередь запросов».‎
+﻿// в качестве заготовки кода используйте последнюю версию своей поисковой системы
 #include "string_processing.h"
 
-std::vector<std::string> SplitIntoWords(const std::string& text) {
-    std::vector<std::string> words;
-    std::string word;
+#include <iostream>
+
+using namespace std;
+
+void PrintDocument(const Document& document) {
+    cout << "{ "s
+        << "document_id = "s << document.id << ", "s
+        << "relevance = "s << document.relevance << ", "s
+        << "rating = "s << document.rating << " }"s << endl;
+}
+
+void PrintMatchDocumentResult(int document_id, const vector<string>& words,
+    DocumentStatus status) {
+    cout << "{ "s
+        << "document_id = "s << document_id << ", "s
+        << "status = "s << static_cast<int>(status) << ", "s
+        << "words ="s;
+    for (const string& word : words) {
+        cout << ' ' << word;
+    }
+    cout << "}"s << endl;
+}
+
+vector<string> SplitIntoWords(const string& text) {
+    vector<string> words;
+    string word;
     for (const char c : text) {
         if (c == ' ') {
             if (!word.empty()) {
