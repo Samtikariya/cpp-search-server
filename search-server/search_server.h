@@ -58,9 +58,9 @@ public:
 
 	int GetDocumentId(int) const;
 
-	std::vector<int>::const_iterator begin() const;
+	std::set<int>::const_iterator begin() const;
 
-	std::vector<int>::const_iterator end() const;
+	std::set<int>::const_iterator end() const;
 
 	using MatchDocumentResult = std::tuple<std::vector<std::string_view>, DocumentStatus>;
 
@@ -100,7 +100,7 @@ private:
 	const std::set<std::string, std::less<>> stop_words_;
 	std::map<std::string_view, std::map<int, double>> word_to_document_freqs_;
 	std::map<int, DocumentData> documents_;
-	std::vector<int> document_ids_;
+	std::set<int> document_ids_;
 
 	std::map<int, std::map<std::string_view, double>> doc_to_words_freqs_;
 
@@ -126,11 +126,11 @@ private:
 	template <typename DocumentPredicate>
 	std::vector<Document> FindAllDocuments(const Query&, DocumentPredicate) const;
 
-	template <typename ExecutionPolicy, typename ForwardRange, typename Function>
-	void ForEach(const ExecutionPolicy&, ForwardRange&, Function);
 
-	template <typename ForwardRange, typename Function>
-	void ForEach(ForwardRange&, Function);
+
+
+
+
 
 };
 
@@ -220,8 +220,7 @@ std::vector<Document> SearchServer::FindAllDocuments(ExecutionPolicy&& policy, c
 	std::vector<Document> matched_documents;
 	matched_documents.reserve(document_to_relevance.size());
 
-	for_each(std::execution::seq,
-		document_to_relevance.begin(), document_to_relevance.end(),
+	for_each(document_to_relevance.begin(), document_to_relevance.end(),
 		[this, &matched_documents](const auto& document) {
 			matched_documents.push_back({
 				document.first,

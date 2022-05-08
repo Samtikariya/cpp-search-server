@@ -36,7 +36,7 @@ void SearchServer::AddDocument(int document_id, std::string_view document, Docum
 		word_to_document_freqs_[word][document_id] += inv_word_count;
 		doc_to_words_freqs_[document_id][word] = word_to_document_freqs_[word][document_id];
 	}
-	document_ids_.push_back(document_id);
+	document_ids_.insert(document_id);
 }
 
 std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query, DocumentStatus status) const {
@@ -55,17 +55,18 @@ int SearchServer::GetDocumentCount() const {
 	return documents_.size();
 }
 
-int SearchServer::GetDocumentId(int index) const {
-	return document_ids_.at(index);
-}
+//int SearchServer::GetDocumentId(int index) const {
+//	return document_ids_.at(index);
+//}
 
-std::vector<int>::const_iterator SearchServer::begin() const {
+
+std::set<int>::const_iterator SearchServer::begin() const {
 	return document_ids_.begin();
 }
-
-std::vector<int>::const_iterator SearchServer::end() const {
+std::set<int>::const_iterator SearchServer::end() const {
 	return document_ids_.end();
 }
+
 
 SearchServer::MatchDocumentResult SearchServer::MatchDocument(std::string_view raw_query, int document_id) const {
 	return MatchDocument(std::execution::seq,
@@ -166,9 +167,10 @@ void SearchServer::RemoveDocument(int document_id)
 		return;
 	}
 	documents_.erase(document_id);
-	auto new_end_it = std::remove(//std::execution::par,
-		document_ids_.begin(), document_ids_.end(), document_id);
-	document_ids_.erase(new_end_it, document_ids_.end());
+	document_ids_.erase(document_id);
+	//	auto new_end_it = std::remove(//std::execution::par,
+	//        document_ids_.begin(), document_ids_.end(), document_id);
+	//	document_ids_.erase(new_end_it, document_ids_.end());
 
 	for (auto& [word, submap] : word_to_document_freqs_) {
 		if (submap.count(document_id) > 0) {
@@ -180,16 +182,23 @@ void SearchServer::RemoveDocument(int document_id)
 
 
 
-const std::map<std::string_view, double>& SearchServer::GetWordFrequencies(int document_id) const
-{
+const std::map<std::string_view, double>& SearchServer::GetWordFrequencies(int document_id) const {
 	static std::map<std::string_view, double> word_freqs_;
-	word_freqs_.clear();
 
-	if (documents_.count(document_id) > 0) {
-		word_freqs_ = doc_to_words_freqs_.at(document_id);
+	for (auto& [str, freq_map] : word_to_document_freqs_)
+	{
+		auto it = freq_map.find(document_id);
+
+		if (it != freq_map.end())
+		{
+			word_freqs_[str] = it->second;
+		}
 	}
+
 	return word_freqs_;
 }
+
+
 
 bool SearchServer::IsStopWord(std::string_view word) const {
 	return stop_words_.count(word) > 0;
@@ -222,7 +231,13 @@ std::vector<std::string_view> SearchServer::SplitIntoWordsNoStop(std::string_vie
 
 int SearchServer::ComputeAverageRating(const std::vector<int>& ratings) {
 	int rating_sum = std::accumulate(ratings.begin(), ratings.end(), 0);
-	return rating_sum / static_cast<int>(ratings.size());
+	if (ratings.size()) {
+		return rating_sum / static_cast<int>(ratings.size());
+	}
+	else {
+		//        return rating_sum;
+		throw std::invalid_argument("ratings.size() is 0 "s);
+	}
 }
 
 SearchServer::QueryWord SearchServer::ParseQueryWord(std::string_view text) const {
@@ -243,7 +258,7 @@ SearchServer::QueryWord SearchServer::ParseQueryWord(std::string_view text) cons
 	return { word, is_minus, IsStopWord(word) };
 }
 
-SearchServer::Query SearchServer::ParseQuery(std::string_view text, bool skip_sort) const {
+SearchServer::Query SearchServer::ParseQuery(std::string_view text, bool skip_sort = false) const {
 	Query result;
 
 	for (const std::string_view word : SplitIntoWords(text)) {
