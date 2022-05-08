@@ -1,5 +1,4 @@
-﻿// в качестве заготовки кода используйте последнюю версию своей поисковой системы
-#pragma once
+﻿#pragma once
 
 #include <iostream>
 #include <cassert>

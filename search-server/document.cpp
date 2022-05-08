@@ -1,5 +1,4 @@
-﻿// в качестве заготовки кода используйте последнюю версию своей поисковой системы
-#include <iostream>
+﻿#include <iostream>
 #include <string>
 
 #include "document.h"

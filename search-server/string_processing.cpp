@@ -1,7 +1,7 @@
-﻿// в качестве заготовки кода используйте последнюю версию своей поисковой системы
-#include "string_processing.h"
+﻿#include "string_processing.h"
 
-#include <iostream>
+
+
 
 using namespace std;
 
@@ -12,13 +12,13 @@ void PrintDocument(const Document& document) {
         << "rating = "s << document.rating << " }"s << endl;
 }
 
-void PrintMatchDocumentResult(int document_id, const vector<string>& words,
+void PrintMatchDocumentResult(int document_id, const vector<string_view>& words,
     DocumentStatus status) {
     cout << "{ "s
         << "document_id = "s << document_id << ", "s
         << "status = "s << static_cast<int>(status) << ", "s
         << "words ="s;
-    for (const string& word : words) {
+    for (const string_view& word : words) {
         cout << ' ' << word;
     }
     cout << "}"s << endl;
@@ -32,15 +32,35 @@ vector<string> SplitIntoWords(const string& text) {
             if (!word.empty()) {
                 words.push_back(word);
                 word.clear();
+
             }
         }
         else {
             word += c;
+
         }
     }
     if (!word.empty()) {
         words.push_back(word);
     }
 
+    return words;
+}
+
+vector<string_view> SplitIntoWords(string_view text)
+{
+
+    vector<string_view> words;
+
+    string word;
+    auto pos = text.find(' ');
+    size_t first = 0;
+    while (pos != text.npos)
+    {
+        words.push_back(text.substr(first, pos - first));
+        first = pos + 1;
+        pos = text.find(' ', first);
+    }
+    words.push_back(text.substr(first, pos - first));
     return words;
 }

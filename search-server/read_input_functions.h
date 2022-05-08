@@ -1,6 +1,7 @@
-﻿//Вставьте сюда своё решение из урока «‎Очередь запросов».‎
-#pragma once
+﻿#pragma once
+
 #include <string>
+#include <vector>
 
 std::string ReadLine();
 

@@ -21,8 +21,7 @@ vector<Document> RequestQueue::AddFindRequest(const string& raw_query) {
 
 int RequestQueue::GetNoResultRequests() const {
     int count = 0;
-    for (auto it = requests_.begin(); it != requests_.end(); ++it) 
-    {
+    for (auto it = requests_.begin(); it != requests_.end(); ++it) {
         if (it->empty) {
             ++count;
         }
@@ -31,16 +30,14 @@ int RequestQueue::GetNoResultRequests() const {
 }
 
 void RequestQueue::ProcessQueue(deque<QueryResult>& requests) {
-    if (requests.empty()) 
-    {
+    if (requests.empty()) {
         return;
     }
     auto item = requests.front();
     ++item.time;
     requests.pop_front();
     ProcessQueue(requests);
-    if (min_in_day_ > item.time) 
-    {
+    if (min_in_day_ > item.time) {
         requests.push_front(item);
     }
 }

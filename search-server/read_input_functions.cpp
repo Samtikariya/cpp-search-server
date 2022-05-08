@@ -1,17 +1,18 @@
-﻿//Вставьте сюда своё решение из урока «‎Очередь запросов».‎
-#include "read_input_functions.h"
-#include <iostream>
+﻿#include <iostream>
 
-std::string ReadLine() {
-    std::string s;
-    std::getline(std::cin, s);
-    return s;
+#include "read_input_functions.h"
+
+using namespace std;
+
+string ReadLine() {
+	string s;
+	getline(cin, s);
+	return s;
 }
 
-
 int ReadLineWithNumber() {
-    int result;
-    std::cin >> result;
-    ReadLine();
-    return result;
+	int result;
+	cin >> result;
+	ReadLine();
+	return result;
 }
