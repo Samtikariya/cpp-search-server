@@ -80,7 +80,6 @@ SearchServer::MatchDocumentResult SearchServer::MatchDocument(const std::executi
 		using namespace std::literals::string_literals;
 		throw std::out_of_range("Incorrect document id"s);
 	}
-	using namespace std;
 	bool skip_sort = false;
 	const auto query = ParseQuery(raw_query, skip_sort);
 	const auto status = documents_.at(document_id).status;
@@ -168,9 +167,23 @@ void SearchServer::RemoveDocument(int document_id)
 	}
 	documents_.erase(document_id);
 	document_ids_.erase(document_id);
+
 	//	auto new_end_it = std::remove(//std::execution::par,
 	//        document_ids_.begin(), document_ids_.end(), document_id);
 	//	document_ids_.erase(new_end_it, document_ids_.end());
+	/*    Ошибки выдаёт, разберусь исправлю.
+	auto& word_freqs = doc_to_words_freqs_.at(document_id);
+		if (word_freqs.empty()) {
+		return;
+	}
+	std::for_each(std::execution::par,
+		word_freqs.begin(),
+		word_freqs.end(),
+		[document_id, this](const auto& item) {
+			word_to_document_freqs_.at(item).erase(document_id);
+		}
+	);
+	*/
 
 	for (auto& [word, submap] : word_to_document_freqs_) {
 		if (submap.count(document_id) > 0) {
@@ -235,8 +248,8 @@ int SearchServer::ComputeAverageRating(const std::vector<int>& ratings) {
 		return rating_sum / static_cast<int>(ratings.size());
 	}
 	else {
-		//        return rating_sum;
-		throw std::invalid_argument("ratings.size() is 0 "s);
+		return rating_sum;
+//		throw std::invalid_argument("ratings.size() is 0 "s);
 	}
 }
 
